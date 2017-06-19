@@ -34,19 +34,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        SDKApplicationDelegate.shared.application(application, didFinishLaunchingWithOptions: launchOptions)
         _ = self.configer(application, didFinishLaunchingWithOptions: launchOptions);
         
-        return SDKApplicationDelegate.shared.application(application, didFinishLaunchingWithOptions: launchOptions);
+        return true;
         
     }
     
     
-    func application(_ application: UIApplication, open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
-        return SDKApplicationDelegate.shared.application(application,
-                                                         open: url,
-                                                         sourceApplication: sourceApplication,
-                                                         annotation: annotation)
-    }
+
     func application(_ application: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey: Any]) -> Bool {
         return SDKApplicationDelegate.shared.application(application, open: url, options: options)
     }
@@ -67,57 +63,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
     
-    
-  
-    // [END receive_message]
-    // [START refresh_token]
-    func tokenRefreshNotification(_ notification: Notification) {
-        if let refreshedToken = InstanceID.instanceID().token() {
-            print("InstanceID token: \(refreshedToken)")
-        }
-        
-        // Connect to FCM since connection may have failed when attempted before having a token.
-        connectToFcm()
-        
-    }
-    // [END refresh_token]
-    
-    // [START connect_to_fcm]
-    func connectToFcm() {
-        // Won't connect since there is no token
-        guard InstanceID.instanceID().token() != nil else {
-            return
-        }
-        
-        // Disconnect previous FCM connection if it exists.
-        Messaging.messaging().disconnect()
-        
-        Messaging.messaging().connect { (error) in
-            if error != nil {
-                print("Unable to connect with FCM. \(error?.localizedDescription ?? "")")
-            } else {
-                print("Connected to FCM with Token : \(InstanceID.instanceID().token()!).")
-            }
-        }
-//        if (Helper.Authorize.loginResponse != nil) {
-//            
-//            
-//            
-//            ClientService.shared.registerPassengerDevice(deviceID: FIRInstanceID.instanceID().token()!) { (json, model, response) in
-//                
-//                print(response ?? " registerPassengerDevice NO RESPONSE")
-//            }
-//        }
-        
-    }
-    // [END connect_to_fcm]
-    
+       
    
-    
-    // This function is added here only for debugging purposes, and can be removed if swizzling is enabled.
-    // If swizzling is disabled then this function must be implemented so that the APNs token can be paired to
-    // the InstanceID token.
- 
     
     // [START connect_on_active]
     func applicationDidBecomeActive(_ application: UIApplication) {
@@ -125,7 +72,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         AppEventsLogger.activate(application)
         
         self.configerDidBecomeActive(application);
-        connectToFcm()
     }
     // [END connect_on_active]
     // [START disconnect_from_fcm]
@@ -295,7 +241,7 @@ extension AppDelegate : UNUserNotificationCenterDelegate {
         print(userInfo)
         
         // Change this to your preferred presentation option
-        completionHandler([])
+        completionHandler([.alert,.sound])
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter,
